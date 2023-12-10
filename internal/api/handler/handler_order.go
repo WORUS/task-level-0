@@ -7,5 +7,6 @@ import (
 )
 
 func (h *Handler) GetOrder(c *gin.Context) {
+
 	c.JSON(http.StatusOK, map[string]interface{}{"text": "All good"})
 }

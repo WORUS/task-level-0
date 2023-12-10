@@ -19,7 +19,7 @@ func (s *OrderService) GetOrder(id int) model.Order {
 	return s.repository.GetOrder(id)
 }
 
-func (s *OrderService) AddOrder(order model.Order) int {
+func (s *OrderService) AddOrder(order []byte) (string, error) {
 	return s.repository.AddOrder(order)
 
 }

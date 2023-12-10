@@ -6,14 +6,14 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"task-level-0/internal/handler"
+	"task-level-0/internal/api/handler"
+	"task-level-0/internal/api/stan/publisher"
+	"task-level-0/internal/api/stan/subscriber"
 	"task-level-0/internal/repository"
 	"task-level-0/internal/server"
 	"task-level-0/internal/service"
-	"task-level-0/internal/stan/publisher"
-	"task-level-0/internal/stan/subscriber"
 
-	pgx "github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/nats-io/stan.go"
 	"github.com/sirupsen/logrus"
@@ -26,15 +26,15 @@ func main() {
 		logrus.Fatalf("error loading env variabless: %s", err.Error())
 	}
 
-	pgxc, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
 
-	defer pgxc.Close(context.Background())
+	defer dbpool.Close()
 
-	repository := repository.NewRepository(pgxc)
+	repository := repository.NewRepository(dbpool)
 	service := service.NewService(repository)
 	handler := handler.NewHandler(service)
 	srv := new(server.Server)

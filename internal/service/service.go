@@ -7,7 +7,7 @@ import (
 
 type Order interface {
 	GetOrder(id int) model.Order
-	AddOrder(order model.Order) int
+	AddOrder(order []byte) (string, error)
 }
 
 type Service struct {
