@@ -17,17 +17,21 @@ func NewOrderPostgres(pgx *pgxpool.Pool) *OrderPostgres {
 	return &OrderPostgres{pgx: pgx}
 }
 
-func (p *OrderPostgres) GetOrder(id int) model.Order {
+func (p *OrderPostgres) GetOrder(id string) (model.Order, error) {
 	var order model.Order
-	return order
+	err := p.pgx.QueryRow(context.Background(), "SELECT order_json FROM orders WHERE order_uid=$1", id).Scan(&order)
+	if err != nil {
+		return order, err
+	}
+	return order, nil
 }
 
-func (p *OrderPostgres) AddOrder(order []byte) (string, error) {
+func (p *OrderPostgres) AddOrder(id string, content []byte) (string, error) {
 
 	query := `INSERT INTO orders (order_uid, order_json) VALUES (@order_uid, @order_json)`
 	args := pgx.NamedArgs{
-		"order_uid":  "f98dgf0sdgf",
-		"order_json": order,
+		"order_uid":  id,
+		"order_json": content,
 	}
 	_, err := p.pgx.Exec(context.Background(), query, args)
 	if err != nil {
@@ -39,5 +43,5 @@ func (p *OrderPostgres) AddOrder(order []byte) (string, error) {
 	// }
 	// p.pgx.Exec(ctx, query, args)
 
-	return "XHOOOO", nil
+	return id, nil
 }

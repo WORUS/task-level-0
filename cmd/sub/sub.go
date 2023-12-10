@@ -3,13 +3,15 @@ package main
 import (
 	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func main() {
 
 	for {
 
-		fmt.Println(time.Parse(time.RFC3339, time.Now().UTC().Format(time.RFC3339)))
+		fmt.Println(uuid.New)
 		time.Sleep(1000 * time.Millisecond)
 	}
 }

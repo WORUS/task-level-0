@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -22,7 +21,6 @@ func generateJSON(order *model.Order) *model.Order {
 	banks := [3]string{"alpha", "sber", "tinkoff"}
 	items := [5]int{1, 1, 1, 2, 3}
 	itemsNumber := gofakeit.RandomInt(items[:])
-	logrus.Info(itemsNumber)
 
 	order.OrderUID = gofakeit.UUID()
 	order.TrackNumber = trackNumber

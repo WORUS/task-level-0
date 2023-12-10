@@ -15,11 +15,11 @@ func NewOrderService(repo *repository.Repository) *OrderService {
 	}
 }
 
-func (s *OrderService) GetOrder(id int) model.Order {
+func (s *OrderService) GetOrder(id string) (model.Order, error) {
 	return s.repository.GetOrder(id)
 }
 
-func (s *OrderService) AddOrder(order []byte) (string, error) {
-	return s.repository.AddOrder(order)
+func (s *OrderService) AddOrder(id string, order []byte) (string, error) {
+	return s.repository.AddOrder(id, order)
 
 }

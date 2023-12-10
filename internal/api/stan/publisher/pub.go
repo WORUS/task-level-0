@@ -32,6 +32,6 @@ func (p *Publisher) Run() {
 			logrus.Fatal(err)
 		}
 		p.conn.Publish(p.subject, b)
-		time.Sleep(2000 * time.Millisecond)
+		time.Sleep(2 * time.Minute)
 	}
 }

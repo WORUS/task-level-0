@@ -3,7 +3,6 @@ package subscriber
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"task-level-0/internal/domain/model"
 	"task-level-0/internal/service"
 
@@ -32,25 +31,28 @@ func NewSubscriber(conn stan.Conn, subj string, serv *service.Service) *Subscrib
 func (s *Subscriber) Run() {
 	_, err := s.conn.Subscribe(s.subject, func(msg *stan.Msg) {
 
-		res, err := PrettyString(string(msg.Data))
-		if err != nil {
-			logrus.Fatal("Error occurred while parse nats msg")
-		}
-		fmt.Println(res)
+		// res, err := PrettyString(string(msg.Data))
+		// if err != nil {
+		// 	logrus.Fatal("Error occurred while parse nats msg")
+		// }
+		// fmt.Println(res)
 		//TODO: validate
 
 		var order model.Order
 
-		err = json.Unmarshal(msg.Data, &order)
+		err := json.Unmarshal(msg.Data, &order)
 		if err != nil {
-			logrus.Info("Error with Unmarshal msg data")
+			logrus.WithError(err).Info("Error with Unmarshal msg data")
+		} else {
+			id, err := s.service.AddOrder(order.OrderUID, msg.Data)
+			if err != nil {
+				logrus.WithError(err).Info("Error occured with adding order into database")
+			} else {
+				logrus.Infof("order added into database with id = %s", id)
+			}
 		}
 
-		id, err := s.service.AddOrder(msg.Data)
-
-		logrus.Infof("order added into database with id = %s", id)
-
-	}, stan.StartWithLastReceived())
+	})
 	// sub.Unsubscribe()
 	// s.conn.Close()
 	if err != nil {
