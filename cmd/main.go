@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"task-level-0/internal/api/handler"
 	"task-level-0/internal/api/stan/publisher"
@@ -18,6 +19,14 @@ import (
 	"github.com/nats-io/stan.go"
 	"github.com/sirupsen/logrus"
 )
+
+const (
+	cacheParseBase       = 10
+	cacheParseBitSize    = 32
+	cacheDefaultCapacity = 100
+)
+
+//TODO delete cmd/ sub
 
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
@@ -34,7 +43,16 @@ func main() {
 
 	defer dbpool.Close()
 
-	repository := repository.NewRepository(dbpool)
+	cache := make(map[string][]byte)
+	cacheCapacity := uint(cacheDefaultCapacity)
+	temp, err := strconv.ParseUint(os.Getenv("CACHE_CAPACITY"), cacheParseBase, cacheParseBitSize)
+	if err != nil {
+		logrus.WithError(err).Infof("error with parse cache size cause set default_size = %d", cacheDefaultCapacity)
+	} else {
+		cacheCapacity = uint(temp)
+	}
+
+	repository := repository.NewRepository(dbpool, cacheCapacity, cache)
 	service := service.NewService(repository)
 	handler := handler.NewHandler(service)
 	srv := new(server.Server)

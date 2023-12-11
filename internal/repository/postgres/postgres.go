@@ -1,8 +1,7 @@
-package repository
+package postgres
 
 import (
 	"context"
-	"task-level-0/internal/domain/model"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,11 +16,11 @@ func NewOrderPostgres(pgx *pgxpool.Pool) *OrderPostgres {
 	return &OrderPostgres{pgx: pgx}
 }
 
-func (p *OrderPostgres) GetOrder(id string) (model.Order, error) {
-	var order model.Order
+func (p *OrderPostgres) GetOrder(id string) ([]byte, error) {
+	var order []byte
 	err := p.pgx.QueryRow(context.Background(), "SELECT order_json FROM orders WHERE order_uid=$1", id).Scan(&order)
 	if err != nil {
-		return order, err
+		return nil, err
 	}
 	return order, nil
 }

@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
+	"task-level-0/internal/domain/model"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -21,5 +23,12 @@ func (h *Handler) GetOrder(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, order)
+	var ord model.Order
+
+	if err := json.Unmarshal(order, &ord); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"erorr": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, ord)
 }

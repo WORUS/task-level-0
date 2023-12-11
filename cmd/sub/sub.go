@@ -1,17 +1,5 @@
 package main
 
-import (
-	"fmt"
-	"time"
+import "fmt"
 
-	"github.com/google/uuid"
-)
-
-func main() {
-
-	for {
-
-		fmt.Println(uuid.New)
-		time.Sleep(1000 * time.Millisecond)
-	}
-}
+func main() { mps := make(map[string]string); mps["1"] = "1"; mps["1"] = "2"; fmt.Print(mps["1"]) }

@@ -1,12 +1,11 @@
 package service
 
 import (
-	"task-level-0/internal/domain/model"
 	"task-level-0/internal/repository"
 )
 
 type Order interface {
-	GetOrder(id string) (model.Order, error)
+	GetOrder(id string) ([]byte, error)
 	AddOrder(id string, order []byte) (string, error)
 }
 
