@@ -17,7 +17,7 @@ func (h *Handler) GetOrder(c *gin.Context) {
 		return
 	}
 
-	order, err := h.service.GetOrder(id)
+	order, err := h.service.GetOrderById(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

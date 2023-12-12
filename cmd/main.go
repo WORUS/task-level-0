@@ -44,18 +44,20 @@ func main() {
 	defer dbpool.Close()
 
 	cache := make(map[string][]byte)
-	cacheCapacity := uint(cacheDefaultCapacity)
-	temp, err := strconv.ParseUint(os.Getenv("CACHE_CAPACITY"), cacheParseBase, cacheParseBitSize)
+	cacheCapacity := cacheDefaultCapacity
+	temp, err := strconv.ParseInt(os.Getenv("CACHE_CAPACITY"), cacheParseBase, cacheParseBitSize)
 	if err != nil {
 		logrus.WithError(err).Infof("error with parse cache size cause set default_size = %d", cacheDefaultCapacity)
 	} else {
-		cacheCapacity = uint(temp)
+		cacheCapacity = int(temp)
 	}
 
 	repository := repository.NewRepository(dbpool, cacheCapacity, cache)
 	service := service.NewService(repository)
 	handler := handler.NewHandler(service)
 	srv := new(server.Server)
+
+	repository.RestoreCache()
 
 	go func() {
 		if err := srv.Run(os.Getenv("port"), handler.InitRoutes()); err != nil {

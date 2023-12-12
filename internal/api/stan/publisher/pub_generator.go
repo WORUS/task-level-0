@@ -39,7 +39,7 @@ func generateJSON(order *model.Order) *model.Order {
 	order.Payment.Currency = gofakeit.RandomString(currencies[:])
 	order.Payment.Provider = provider
 	order.Payment.Amount = gofakeit.IntRange(1600, 9999)
-	order.Payment.PaymentDt = gofakeit.Date().Unix()
+	order.Payment.PaymentDt = time.Now().Unix()
 	order.Payment.Bank = gofakeit.RandomString(banks[:])
 	order.Payment.DeliveryCost = int(gofakeit.Uint8() * 3)
 	order.Payment.GoodsTotal = order.Payment.Amount - order.Payment.DeliveryCost

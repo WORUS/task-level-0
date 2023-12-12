@@ -16,14 +16,14 @@ func NewOrderService(repo *repository.Repository) *OrderService {
 	}
 }
 
-func (s *OrderService) GetOrder(id string) ([]byte, error) {
-	order, hit := s.repository.Cache.GetOrder(id)
+func (s *OrderService) GetOrderById(id string) ([]byte, error) {
+	order, hit := s.repository.Cache.GetOrderById(id)
 	if hit {
 		logrus.Info("Cache hit: order was retreived from cache")
 		return order, nil
 	}
 
-	order, err := s.repository.Postgres.GetOrder(id)
+	order, err := s.repository.Postgres.GetOrderById(id)
 	if err != nil {
 		return nil, err
 	}

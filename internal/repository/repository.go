@@ -1,21 +1,25 @@
 package repository
 
 import (
+	"fmt"
 	"task-level-0/internal/repository/cache"
 	"task-level-0/internal/repository/postgres"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/sirupsen/logrus"
 )
 
 type Postgres interface {
-	GetOrder(id string) ([]byte, error)
+	GetOrders(limit int) (map[string][]byte, error)
+	GetOrderById(id string) ([]byte, error)
 	AddOrder(id string, order []byte) (string, error)
 }
 
 type Cache interface {
-	GetOrder(id string) ([]byte, bool)
+	GetOrderById(id string) ([]byte, bool)
 	AddOrder(id string, order []byte) (string, error)
 	DeleteOrder(id string) error
+	GetCapacity() int
 }
 
 type Repository struct {
@@ -23,9 +27,18 @@ type Repository struct {
 	Postgres
 }
 
-func NewRepository(pgx *pgxpool.Pool, cacheCapacity uint, ordersMap map[string][]byte) *Repository {
+func NewRepository(pgx *pgxpool.Pool, cacheCapacity int, ordersMap map[string][]byte) *Repository {
 	return &Repository{
-		Cache:    cache.NewOrderCache(cacheCapacity, ordersMap),
+		Cache:    cache.NewOrderCache(cacheCapacity),
 		Postgres: postgres.NewOrderPostgres(pgx),
 	}
+}
+
+func (r *Repository) RestoreCache() {
+	value, err := r.Postgres.GetOrders(r.Cache.GetCapacity())
+	if err != nil {
+		logrus.WithError(err).Fatal("error occcurred restore cache")
+		return
+	}
+	fmt.Printf("%v", value)
 }

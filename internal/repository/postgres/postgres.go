@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -16,7 +17,7 @@ func NewOrderPostgres(pgx *pgxpool.Pool) *OrderPostgres {
 	return &OrderPostgres{pgx: pgx}
 }
 
-func (p *OrderPostgres) GetOrder(id string) ([]byte, error) {
+func (p *OrderPostgres) GetOrderById(id string) ([]byte, error) {
 	var order []byte
 	err := p.pgx.QueryRow(context.Background(), "SELECT order_json FROM orders WHERE order_uid=$1", id).Scan(&order)
 	if err != nil {
@@ -43,4 +44,21 @@ func (p *OrderPostgres) AddOrder(id string, content []byte) (string, error) {
 	// p.pgx.Exec(ctx, query, args)
 
 	return id, nil
+}
+
+type orderRow struct {
+	key   string
+	value []byte
+}
+
+func (p *OrderPostgres) GetOrders(limit int) (map[string][]byte, error) {
+	orders := make(map[string][]byte)
+	//rows := make([]orderRow, 0)
+	var r orderRow
+	query := fmt.Sprintf("SELECT order_uid, order_json FROM orders LIMIT %d", limit)
+	err := p.pgx.QueryRow(context.Background(), query).Scan(&r.key, &r.value)
+	if err != nil {
+		return nil, err
+	}
+	return orders, nil
 }

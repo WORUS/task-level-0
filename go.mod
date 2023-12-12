@@ -5,6 +5,7 @@ go 1.21.0
 require (
 	github.com/brianvoe/gofakeit/v6 v6.26.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da
 	github.com/google/uuid v1.4.0
 	github.com/jackc/pgx/v5 v5.5.0
 	github.com/joho/godotenv v1.5.1

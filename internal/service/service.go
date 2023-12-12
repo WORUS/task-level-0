@@ -5,7 +5,7 @@ import (
 )
 
 type Order interface {
-	GetOrder(id string) ([]byte, error)
+	GetOrderById(id string) ([]byte, error)
 	AddOrder(id string, order []byte) (string, error)
 }
 
