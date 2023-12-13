@@ -27,7 +27,7 @@ func generateJSON(order *model.Order) *model.Order {
 	order.Entry = entry
 
 	order.Delivery.Name = gofakeit.Name()
-	order.Delivery.Phone = gofakeit.Phone()
+	order.Delivery.Phone = "+" + gofakeit.Phone()
 	order.Delivery.Zip = fmt.Sprint(gofakeit.Number(1000000, 9999999))
 	order.Delivery.City = gofakeit.City()
 	order.Delivery.Address = gofakeit.Street()
@@ -43,8 +43,8 @@ func generateJSON(order *model.Order) *model.Order {
 	order.Payment.Bank = gofakeit.RandomString(banks[:])
 	order.Payment.DeliveryCost = int(gofakeit.Uint8() * 3)
 	order.Payment.GoodsTotal = order.Payment.Amount - order.Payment.DeliveryCost
+	order.Payment.CustomFee = gofakeit.IntRange(0, 1500)
 
-	order.Payment.CustomFee = 0
 	for i := 0; i < itemsNumber; i++ {
 		addItem(order)
 		order.Items[i].ChrtID = gofakeit.Number(1000000, 9999999)
@@ -74,16 +74,16 @@ func generateJSON(order *model.Order) *model.Order {
 
 func addItem(order *model.Order) {
 	order.Items = append(order.Items, struct {
-		ChrtID      int    "json:\"chrt_id\""
-		TrackNumber string "json:\"track_number\""
-		Price       int    "json:\"price\""
-		Rid         string "json:\"rid\""
-		Name        string "json:\"name\""
-		Sale        int    "json:\"sale\""
-		Size        string "json:\"size\""
-		TotalPrice  int    "json:\"total_price\""
-		NmID        int    "json:\"nm_id\""
-		Brand       string "json:\"brand\""
-		Status      int    "json:\"status\""
+		ChrtID      int    "json:\"chrt_id\" validate:\"required,number\""
+		TrackNumber string "json:\"track_number\" validate:\"required,uppercase\""
+		Price       int    "json:\"price\" validate:\"required\""
+		Rid         string "json:\"rid\" validate:\"required,lowercase\""
+		Name        string "json:\"name\" validate:\"required,min=1\""
+		Sale        int    "json:\"sale\" validate:\"required,gte=0,lte=100\""
+		Size        string "json:\"size\" validate:\"required,min=1\""
+		TotalPrice  int    "json:\"total_price\" validate:\"required,ltefield=Price\""
+		NmID        int    "json:\"nm_id\" validate:\"required,gte=0,len=7\""
+		Brand       string "json:\"brand\" validate:\"required,min=1,max=140\""
+		Status      int    "json:\"status\" validate:\"required,gte=0\""
 	}{})
 }

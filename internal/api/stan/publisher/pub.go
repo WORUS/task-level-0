@@ -2,7 +2,6 @@ package publisher
 
 import (
 	"encoding/json"
-	"fmt"
 	"task-level-0/internal/domain/model"
 	"time"
 
@@ -13,18 +12,24 @@ import (
 type Publisher struct {
 	conn    stan.Conn
 	subject string
+	status  bool
 }
 
-func NewPublisher(conn stan.Conn, subj string) *Publisher {
+func NewPublisher(conn stan.Conn, subj string, stat bool) *Publisher {
 	return &Publisher{
 		conn:    conn,
 		subject: subj,
+		status:  stat,
 	}
 }
 
 func (p *Publisher) Run() {
 	//count := 0
 	for {
+		if !p.status {
+			return
+		}
+
 		order := new(model.Order)
 		order = generateJSON(order)
 
@@ -32,9 +37,14 @@ func (p *Publisher) Run() {
 		if err != nil {
 			logrus.Fatal(err)
 		}
+
 		p.conn.Publish(p.subject, b)
-		fmt.Println("_______sended_______________________________________ ", order.OrderUID)
+
 		time.Sleep(1 * time.Second)
 	}
 
+}
+
+func (p *Publisher) Stop() {
+	p.status = false
 }

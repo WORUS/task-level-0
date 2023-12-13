@@ -73,12 +73,15 @@ func main() {
 	sub := subscriber.NewSubscriber(sc, os.Getenv("NATS_SUBJECT"), service)
 	sub.Run()
 
-	pub := publisher.NewPublisher(sc, os.Getenv("NATS_SUBJECT"))
+	pub := publisher.NewPublisher(sc, os.Getenv("NATS_SUBJECT"), true)
 	go pub.Run()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
+
+	pub.Stop()
+	sub.Stop()
 
 	if err := srv.Shutdown(context.Background()); err != nil {
 		logrus.Errorf("error occured on server shutting down: %s", err.Error())
