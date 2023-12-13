@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"fmt"
 	"task-level-0/internal/repository/cache"
 	"task-level-0/internal/repository/postgres"
 
@@ -37,8 +36,13 @@ func NewRepository(pgx *pgxpool.Pool, cacheCapacity int, ordersMap map[string][]
 func (r *Repository) RestoreCache() {
 	value, err := r.Postgres.GetOrders(r.Cache.GetCapacity())
 	if err != nil {
-		logrus.WithError(err).Fatal("error occcurred restore cache")
+		logrus.WithError(err).Fatal("error occurred restore cache: get data from db failed")
 		return
 	}
-	fmt.Printf("%v", value)
+	for k := range value {
+		_, err := r.Cache.AddOrder(k, value[k])
+		if err != nil {
+			logrus.WithError(err).Fatal("error occurred restore cache: add db data into cache failed")
+		}
+	}
 }

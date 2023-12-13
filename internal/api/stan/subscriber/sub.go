@@ -10,10 +10,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type OrderWriter interface {
-	AddOrder()
-}
-
 type Subscriber struct {
 	service *service.Service
 	conn    stan.Conn
@@ -31,18 +27,11 @@ func NewSubscriber(conn stan.Conn, subj string, serv *service.Service) *Subscrib
 func (s *Subscriber) Run() {
 	_, err := s.conn.Subscribe(s.subject, func(msg *stan.Msg) {
 
-		// res, err := PrettyString(string(msg.Data))
-		// if err != nil {
-		// 	logrus.Fatal("Error occurred while parse nats msg")
-		// }
-		// fmt.Println(res)
-		//TODO: validate
-
 		var order model.Order
 
 		err := json.Unmarshal(msg.Data, &order)
 		if err != nil {
-			logrus.WithError(err).Info("Error with Unmarshal msg data")
+			logrus.WithError(err).Info("subscriber: error with unmarshal msg data")
 		} else {
 			id, err := s.service.AddOrder(order.OrderUID, msg.Data)
 			if err != nil {
@@ -51,8 +40,7 @@ func (s *Subscriber) Run() {
 				logrus.Infof("order added into database with id = %s", id)
 			}
 		}
-
-	})
+	}, stan.DurableName("subscriber"))
 	// sub.Unsubscribe()
 	// s.conn.Close()
 	if err != nil {

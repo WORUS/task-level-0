@@ -2,7 +2,6 @@ package cache
 
 import (
 	"container/list"
-	"errors"
 	"fmt"
 	"sync"
 )
@@ -14,7 +13,6 @@ type Item struct {
 
 type OrderCache struct {
 	sync.RWMutex
-	size     int
 	capacity int
 	orders   map[string]*list.Element
 	queue    *list.List
@@ -22,8 +20,7 @@ type OrderCache struct {
 
 func NewOrderCache(capacity int) *OrderCache {
 	return &OrderCache{
-		orders:   make(map[string]*list.Element),
-		size:     0,
+		orders:   make(map[string]*list.Element, capacity),
 		capacity: capacity,
 		queue:    list.New(),
 	}
@@ -45,7 +42,7 @@ func (c *OrderCache) GetOrderById(id string) ([]byte, bool) {
 
 	c.queue.MoveToFront(element)
 
-	c.printCacheData()
+	//c.printCacheData()
 
 	return element.Value.(*Item).Value.([]byte), true
 }
@@ -58,7 +55,7 @@ func (c *OrderCache) AddOrder(id string, order []byte) (string, error) {
 	if element, exists := c.orders[id]; exists {
 		c.queue.MoveToFront(element)
 		element.Value.(*Item).Value = order
-		return id, nil
+		return id, fmt.Errorf("repository.cache.AddOrder: order with id = %s already exists", id)
 	}
 
 	if c.queue.Len() == c.capacity {
@@ -82,7 +79,7 @@ func (c *OrderCache) DeleteOrder(id string) error {
 	defer c.Unlock()
 
 	if _, hit := c.orders[id]; !hit {
-		return errors.New("delete cache element: id not found")
+		return fmt.Errorf("repository.cache.DeleteOrder: id not found")
 	}
 
 	delete(c.orders, id)

@@ -40,7 +40,7 @@ func (s *OrderService) GetOrderById(id string) ([]byte, error) {
 func (s *OrderService) AddOrder(id string, order []byte) (string, error) {
 	id, err := s.repository.Cache.AddOrder(id, order)
 	if err != nil {
-		logrus.Info("Error occurred while add order into cache")
+		return id, err
 	}
 
 	return s.repository.Postgres.AddOrder(id, order)
