@@ -5,7 +5,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/sirupsen/logrus"
 )
 
 type OrderPostgres struct {
@@ -17,10 +16,16 @@ func NewOrderPostgres(pgx *pgxpool.Pool) *OrderPostgres {
 }
 
 func (p *OrderPostgres) GetOrderById(id string) ([]byte, error) {
+	tx, err := p.pgx.Begin(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
 	var order []byte
 
-	err := p.pgx.QueryRow(context.Background(), "SELECT order_json FROM orders WHERE order_uid=$1", id).Scan(&order)
+	err = tx.QueryRow(context.Background(), "SELECT order_json FROM orders WHERE order_uid=$1", id).Scan(&order)
 	if err != nil {
+		tx.Rollback(context.Background())
 		return nil, err
 	}
 
@@ -36,7 +41,7 @@ func (p *OrderPostgres) AddOrder(id string, content []byte) (string, error) {
 
 	_, err := p.pgx.Exec(context.Background(), query, args)
 	if err != nil {
-		logrus.WithError(err).Info("repository.postgres.AddOrder: order already exists")
+		return "", err
 	}
 
 	return id, nil

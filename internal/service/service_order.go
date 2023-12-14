@@ -19,7 +19,7 @@ func NewOrderService(repo *repository.Repository) *OrderService {
 func (s *OrderService) GetOrderById(id string) ([]byte, error) {
 	order, hit := s.repository.Cache.GetOrderById(id)
 	if hit {
-		logrus.Info("Cache hit: order was retreived from cache")
+		logrus.Info("cache hit: order was retreived from cache")
 		return order, nil
 	}
 
@@ -30,9 +30,9 @@ func (s *OrderService) GetOrderById(id string) ([]byte, error) {
 
 	key, err := s.repository.Cache.AddOrder(id, order)
 	if err != nil {
-		logrus.WithError(err).Infof("Adding to cache order with ID = %s was unsuccessful", key)
+		logrus.WithError(err).Infof("adding to cache order with ID = %s was unsuccessful", key)
 	}
-	logrus.Infof("Order with ID = %s was added in cache", key)
+	logrus.Infof("order with ID = %s was added in cache", key)
 
 	return order, nil
 }

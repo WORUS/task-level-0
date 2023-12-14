@@ -27,7 +27,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		order := api.Group("/order")
 		{
-			order.GET("/:id", h.GetOrder)
+			order.GET("/:id", h.GetOrderById)
 		}
 	}
 

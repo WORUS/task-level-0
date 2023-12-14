@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (h *Handler) GetOrder(c *gin.Context) {
+func (h *Handler) GetOrderById(c *gin.Context) {
 	id := c.Param("id")
 	_, err := uuid.Parse(id)
 	if err != nil {
